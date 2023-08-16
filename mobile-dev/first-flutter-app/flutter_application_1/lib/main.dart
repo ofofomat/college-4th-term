@@ -178,7 +178,7 @@ class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    if (appState.favorites.isEmpty) {
+    if (appState.favorites.isEmpty && appState.pinned.isEmpty) {
       return Center(
         child: Text('Start adding words you like!'),
       );
