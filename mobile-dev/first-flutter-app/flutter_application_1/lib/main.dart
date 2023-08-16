@@ -51,11 +51,24 @@ class MyAppState extends ChangeNotifier {
 
   void removeFromFavorite(var pair) {
     favorites.remove(pair);
+    pinned.remove(pair);
     notifyListeners();
   }
 
-  void addToPinned() {
-    return null;
+  void addToPinned(var pair) {
+    if (pinned.length >= 3) {
+      print('Reached pinned words limit!');
+    } else {
+      favorites.remove(pair);
+      pinned.add(pair);
+    }
+    notifyListeners();
+  }
+
+  void removeFromPinned(var pair) {
+    favorites.add(pair);
+    pinned.remove(pair);
+    notifyListeners();
   }
 }
 
@@ -171,7 +184,7 @@ class FavoritesPage extends StatelessWidget {
       );
     }
     var displayText = appState.pinned.isNotEmpty
-        ? 'Your pinned words: '
+        ? 'Your pinned words (${appState.pinned.length}): '
         : 'You have no pinned words yet.';
 
     return ListView(
@@ -180,17 +193,23 @@ class FavoritesPage extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Text(displayText),
         ),
-        for (var pair in appState.pinned)
-          ListTile(
-            leading: IconButton(
-              onPressed: () {
-                appState.removeFromFavorite(pair);
-              },
-              icon: Icon(Icons.favorite),
-              color: Colors.pinkAccent,
+        if (appState.pinned.isNotEmpty)
+          for (var pair in appState.pinned)
+            ListTile(
+              leading: IconButton(
+                onPressed: () {
+                  appState.removeFromFavorite(pair);
+                },
+                icon: Icon(Icons.favorite),
+                color: Colors.pinkAccent,
+              ),
+              title: Text(pair.asLowerCase),
+              trailing: IconButton(
+                  onPressed: () {
+                    appState.removeFromPinned(pair);
+                  },
+                  icon: const Icon(Icons.push_pin)),
             ),
-            title: Text(pair.asLowerCase),
-          ),
         Padding(
           padding: const EdgeInsets.all(20),
           child: Text('You have '
@@ -206,6 +225,11 @@ class FavoritesPage extends StatelessWidget {
               color: Colors.pinkAccent,
             ),
             title: Text(pair.asLowerCase),
+            trailing: IconButton(
+                onPressed: () {
+                  appState.addToPinned(pair);
+                },
+                icon: const Icon(Icons.push_pin_outlined)),
           ),
       ],
     );
