@@ -1,4 +1,5 @@
 import 'package:english_words/english_words.dart';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -35,6 +36,7 @@ class MyAppState extends ChangeNotifier {
   }
 
   var favorites = <WordPair>[];
+  var pinned = <WordPair>[];
 
   void toggleFavorite() {
     if (favorites.contains(current)) {
@@ -45,6 +47,15 @@ class MyAppState extends ChangeNotifier {
       print('WordPair added!');
     }
     notifyListeners();
+  }
+
+  void removeFromFavorite(var pair) {
+    favorites.remove(pair);
+    notifyListeners();
+  }
+
+  void addToPinned() {
+    return null;
   }
 }
 
@@ -153,11 +164,50 @@ class GenerateNames extends StatelessWidget {
 class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [Column()],
-      ),
+    var appState = context.watch<MyAppState>();
+    if (appState.favorites.isEmpty) {
+      return Center(
+        child: Text('Start adding words you like!'),
+      );
+    }
+    var displayText = appState.pinned.isNotEmpty
+        ? 'Your pinned words: '
+        : 'You have no pinned words yet.';
+
+    return ListView(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: Text(displayText),
+        ),
+        for (var pair in appState.pinned)
+          ListTile(
+            leading: IconButton(
+              onPressed: () {
+                appState.removeFromFavorite(pair);
+              },
+              icon: Icon(Icons.favorite),
+              color: Colors.pinkAccent,
+            ),
+            title: Text(pair.asLowerCase),
+          ),
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: Text('You have '
+              '${appState.favorites.length} favorite words:'),
+        ),
+        for (var pair in appState.favorites)
+          ListTile(
+            leading: IconButton(
+              onPressed: () {
+                appState.removeFromFavorite(pair);
+              },
+              icon: Icon(Icons.favorite),
+              color: Colors.pinkAccent,
+            ),
+            title: Text(pair.asLowerCase),
+          ),
+      ],
     );
   }
 }
